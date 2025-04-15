@@ -1,25 +1,21 @@
 import 'package:flutter/material.dart';
 
-class RegisterScreen extends StatefulWidget {
+class LoginScreen extends StatefulWidget {
   @override
-  _RegisterScreenState createState() => _RegisterScreenState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
-  final _registerFormKey = GlobalKey<FormState>();
+class _LoginScreenState extends State<LoginScreen> {
+  final _loginFormKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
   bool _obscureText = true;
-  bool _obscureConfirmText = true;
-  bool _isRegisterLoading = false;
+  bool _isLoginLoading = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -43,64 +39,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return 'Password is required';
     }
 
-    if (value.length < 6) {
+    if (value.length < 8) {
       return 'Password must be at least 6 characters';
     }
 
-    if (!value.contains(RegExp(r'[A-Z]'))) {
-      return 'Password must contain at least one uppercase letter';
-    }
-
-    if (!value.contains(RegExp(r'[0-9]'))) {
-      return 'Password must contain at least one number';
-    }
-
-    if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-      return 'Password must contain at least one special character';
-    }
-
     return null;
   }
 
-  // Confirm password validation function
-  String? _validateConfirmPassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please confirm your password';
-    }
-
-    if (value != _passwordController.text) {
-      return 'Passwords do not match';
-    }
-
-    return null;
-  }
-
-  // Handle registration submission
-  void _handleRegister() async {
-    if (_registerFormKey.currentState!.validate()) {
+  // Handle login submission
+  void _handleLogin() async {
+    if (_loginFormKey.currentState!.validate()) {
       setState(() {
-        _isRegisterLoading = true;
+        _isLoginLoading = true;
       });
 
       // Simulate API call
       await Future.delayed(Duration(seconds: 2));
 
       setState(() {
-        _isRegisterLoading = false;
+        _isLoginLoading = false;
       });
 
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Registration successful!'),
+          content: Text('Login successful!'),
           backgroundColor: Colors.green,
         ),
       );
-
-      // Navigate to login screen after successful registration
-      Future.delayed(Duration(seconds: 1), () {
-        Navigator.pushReplacementNamed(context, '/login');
-      });
     }
   }
 
@@ -112,17 +78,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24),
           child: Form(
-            key: _registerFormKey,
+            key: _loginFormKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SizedBox(height: 60),
-                // Register illustration
-                Image.asset('assets/images/register_image.png'),
+                // Login illustration
+                Image.asset('assets/images/login_image.png'),
                 SizedBox(height: 20),
-                // Join with us text
+                // Welcome back text
                 Text(
-                  'Join with us!',
+                  'Welcome back!',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
@@ -187,55 +153,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         });
                       },
                     ),
-                    helperMaxLines: 5,
-                    helperText:
-                        'Password must be at least 6 characters with 1 uppercase letter, 1 number, and 1 special character.',
+                  ),
+                ),
+                SizedBox(height: 8),
+                // Forgot password link
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Forget your password?',
+                      style: TextStyle(color: Colors.blue, fontSize: 14),
+                    ),
                   ),
                 ),
                 SizedBox(height: 16),
-                // Confirm password field
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  validator: _validateConfirmPassword,
-                  obscureText: _obscureConfirmText,
-                  decoration: InputDecoration(
-                    hintText: 'Confirm your password',
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.red),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureConfirmText
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureConfirmText = !_obscureConfirmText;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(height: 24),
-                // Register button
+                // Login button
                 ElevatedButton(
-                  onPressed: _isRegisterLoading ? null : _handleRegister,
+                  onPressed: _isLoginLoading ? null : _handleLogin,
                   child:
-                      _isRegisterLoading
+                      _isLoginLoading
                           ? SizedBox(
                             height: 20,
                             width: 20,
@@ -244,7 +181,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               strokeWidth: 2,
                             ),
                           )
-                          : Text('Register'),
+                          : Text('Login'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
@@ -256,14 +193,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 SizedBox(height: 16),
-                // Or register with
+                // Or login with
                 Row(
                   children: [
                     Expanded(child: Divider()),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'Or register with',
+                        'Or login with',
                         style: TextStyle(color: Colors.grey, fontSize: 14),
                       ),
                     ),
@@ -271,7 +208,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
                 SizedBox(height: 16),
-                // Google register button
+                // Google login button
                 OutlinedButton(
                   onPressed: () {},
                   child: Text('Google'),
@@ -285,20 +222,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 SizedBox(height: 16),
-                // Login link
+                // Sign up link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Have an account? ",
+                      "Don't have an account? ",
                       style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushReplacementNamed(context, '/login');
+                        Navigator.pushReplacementNamed(context, '/register');
                       },
                       child: Text(
-                        'Login',
+                        'Sign up',
                         style: TextStyle(
                           color: Colors.blue,
                           fontSize: 14,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:zentri/features/auth/login_screen.dart';
-import 'package:zentri/features/auth/register_screen.dart';
+import 'package:zentri/auth/login_screen.dart';
+import 'package:zentri/auth/register_screen.dart';
 import 'package:zentri/splash_screen.dart';
 
 void main() {
