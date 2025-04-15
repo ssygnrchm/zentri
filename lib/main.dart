@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zentri/auth/login_screen.dart';
 import 'package:zentri/auth/register_screen.dart';
+import 'package:zentri/presentation/home_screen.dart';
 import 'package:zentri/splash_screen.dart';
 
 void main() {
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
         '/splash': (context) => SplashScreen(),
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
+        '/home': (context) => HomeScreen(),
       },
     );
   }
