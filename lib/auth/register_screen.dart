@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zentri/repository/auth_repository.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -14,6 +15,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscureText = true;
   bool _obscureConfirmText = true;
   bool _isRegisterLoading = false;
+  final AuthRepository _repo = AuthRepository();
+  String? _message;
 
   @override
   void dispose() {
@@ -83,7 +86,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
 
       // Simulate API call
-      await Future.delayed(Duration(seconds: 2));
+      final res = await _repo.(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
 
       setState(() {
         _isRegisterLoading = false;
@@ -111,11 +117,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
+            padding: EdgeInsets.symmetric(horizontal: 24),
             child: Form(
               key: _registerFormKey,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: 16,
                 children: [
@@ -261,35 +267,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       disabledBackgroundColor: Colors.grey,
-                    ),
-                  ),
-                  // SizedBox(height: 16),
-                  // Or register with
-                  Row(
-                    children: [
-                      Expanded(child: Divider()),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          'Or register with',
-                          style: TextStyle(color: Colors.grey, fontSize: 14),
-                        ),
-                      ),
-                      Expanded(child: Divider()),
-                    ],
-                  ),
-                  // SizedBox(height: 16),
-                  // Google register button
-                  OutlinedButton(
-                    onPressed: () {},
-                    child: Text('Google'),
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
                     ),
                   ),
                   // SizedBox(height: 16),
