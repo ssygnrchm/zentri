@@ -11,4 +11,18 @@ class AuthService {
 
     return response;
   }
+
+  Future<http.Response> register(
+    String name,
+    String email,
+    String password,
+  ) async {
+    final response = await http.post(
+      Uri.parse('${Endpoint.baseUrlApi}/register'),
+      headers: {'Accept': 'application/json'},
+      body: {'name': name, 'email': email, 'password': password},
+    );
+
+    return response;
+  }
 }

@@ -12,6 +12,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   bool _obscureText = true;
   bool _obscureConfirmText = true;
   bool _isRegisterLoading = false;
@@ -20,6 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -83,30 +85,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_registerFormKey.currentState!.validate()) {
       setState(() {
         _isRegisterLoading = true;
+        _message = null;
       });
 
-      // Simulate API call
-      final res = await _repo.(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
+      try {
+        // Call register API
+        final res = await _repo.register(
+          _nameController.text,
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
 
-      setState(() {
-        _isRegisterLoading = false;
-      });
+        setState(() {
+          _isRegisterLoading = false;
+          _message = res.message;
+        });
 
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Registration successful!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(res.message),
+            backgroundColor: res.success ? Colors.green : Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
 
-      // Navigate to login screen after successful registration
-      Future.delayed(Duration(seconds: 1), () {
-        Navigator.pushReplacementNamed(context, '/login');
-      });
+        // Navigate to login screen after successful registration
+        if (res.data != null) {
+          Future.delayed(Duration(seconds: 1), () {
+            Navigator.pushReplacementNamed(context, '/login');
+          });
+        }
+      } catch (e) {
+        setState(() {
+          _isRegisterLoading = false;
+          _message = "Registration failed: ${e.toString()}";
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_message!),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
@@ -137,6 +160,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     'Join with us!',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
+                  ),
+                  // Display error message if exists
+                  if (_message != null) ...[
+                    Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color:
+                            _message!.contains('successful')
+                                ? Colors.green.withOpacity(0.1)
+                                : Colors.red.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        _message!,
+                        style: TextStyle(
+                          color:
+                              _message!.contains('successful')
+                                  ? Colors.green
+                                  : Colors.red,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                  ],
+                  // Name Field
+                  TextFormField(
+                    controller: _nameController,
+                    // validator: _validateEmail,
+                    decoration: InputDecoration(
+                      hintText: 'Jane Doe',
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.red),
+                      ),
+                    ),
+                    keyboardType: TextInputType.name,
+                    autocorrect: false,
                   ),
                   // SizedBox(height: 32),
                   // Email field
