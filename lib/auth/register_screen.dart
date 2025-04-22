@@ -161,29 +161,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
+
                   // Display error message if exists
-                  if (_message != null) ...[
-                    Container(
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color:
-                            _message!.contains('successful')
-                                ? Colors.green.withOpacity(0.1)
-                                : Colors.red.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        _message!,
-                        style: TextStyle(
-                          color:
-                              _message!.contains('successful')
-                                  ? Colors.green
-                                  : Colors.red,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                  ],
+                  // if ((_message != null) &
+                  //     (_message != 'Registrasi berhasil')) ...[
+                  //   Container(
+                  //     padding: EdgeInsets.all(12),
+                  //     decoration: BoxDecoration(
+                  //       color: Colors.red.withOpacity(0.1),
+                  //       borderRadius: BorderRadius.circular(8),
+                  //     ),
+                  //     child: Text(
+                  //       _message!,
+                  //       style: TextStyle(color: Colors.red),
+                  //     ),
+                  //   ),
+                  //   SizedBox(height: 16),
+                  // ],
                   // Name Field
                   TextFormField(
                     controller: _nameController,
