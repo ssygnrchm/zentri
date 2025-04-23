@@ -1,66 +1,78 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zentri/auth/user_model.dart';
 
 class PreferenceHandler {
-  static const String _id = 'idUser';
-  static const String _lookWelcoming = 'lookWelcoming';
-  static const String _token = 'token';
-  UserModel? _user;
+  // Keys
+  static const String _keyId = 'idUser';
+  static const String _keyName = 'name';
+  static const String _keyEmail = 'email';
+  static const String _keyToken = 'token';
+  static const String _keyLookWelcoming = 'lookWelcoming';
 
-  // For saving user id
-  static void saveId(String id) {
-    print('id: $id');
-    SharedPreferences.getInstance().then((prefs) {
-      prefs.setString(_id, id);
-    });
+  /// Save User Info
+  static Future<void> saveUser({
+    required int id,
+    required String name,
+    required String email,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_keyId, id);
+    await prefs.setString(_keyName, name);
+    await prefs.setString(_keyEmail, email);
   }
 
-  static void saveUser(UserModel user) {
-    print('user: $user');
-    SharedPreferences.getInstance().then((prefs) {});
+  /// Save Token
+  static Future<void> saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyToken, token);
   }
 
-  static void saveLookWelcoming(bool look) {
-    print('look: $look');
-    SharedPreferences.getInstance().then((prefs) {
-      prefs.setBool(_lookWelcoming, look);
-    });
+  /// Save Look Welcoming
+  static Future<void> saveLookWelcoming(bool look) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyLookWelcoming, look);
   }
 
-  // For saving token
-  static void saveToken(String token) {
-    print('token: $token');
-    SharedPreferences.getInstance().then((prefs) {
-      prefs.setString(_token, token);
-    });
+  /// Getters
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyToken);
   }
 
-  //For getting user id
-  static Future getId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String id = prefs.getString(_id) ?? '';
-    return id;
+  static Future<int?> getId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_keyId);
   }
 
-  //For getting look welcoming
-  static Future getLookWelcoming() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool look = prefs.getBool(_lookWelcoming) ?? false;
-    return look;
+  static Future<String?> getName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyName);
   }
 
-  // For removing user id
-  static void removeId() {
-    SharedPreferences.getInstance().then((prefs) {
-      // prefs.remove(_id);
-      prefs.clear();
-    });
+  static Future<String?> getEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyEmail);
   }
 
-  // For removing token
-  static void removeToken() {
-    SharedPreferences.getInstance().then((prefs) {
-      prefs.remove(_token);
-    });
+  static Future<bool> getLookWelcoming() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyLookWelcoming) ?? false;
+  }
+
+  /// Remove Functions
+  static Future<void> clearAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
+
+  static Future<void> removeToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_keyToken);
+  }
+
+  static Future<void> removeUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_keyId);
+    await prefs.remove(_keyName);
+    await prefs.remove(_keyEmail);
   }
 }

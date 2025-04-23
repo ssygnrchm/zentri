@@ -1,13 +1,13 @@
 class UserModel {
-  final int? id; // Make id nullable
+  final int id; // Make id nullable
   final String name;
   final String email;
 
-  UserModel({this.id, required this.name, required this.email});
+  UserModel({required this.id, required this.name, required this.email});
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'],
+      id: json['id'] ?? 0,
       name: json['name'] ?? '',
       email: json['email'] ?? '',
     );

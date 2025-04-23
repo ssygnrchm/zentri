@@ -12,7 +12,10 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     // Simulate splash screen delay
     Future.delayed(Duration(seconds: 2), () {
-      if (PreferenceHandler.getId() != '') {
+      print(
+        'token di splash screen: ${PreferenceHandler.getToken().toString()}',
+      );
+      if (PreferenceHandler.getToken() != 'token') {
         Navigator.pushReplacementNamed(context, '/home');
       } else {
         Navigator.pushReplacementNamed(context, '/login');

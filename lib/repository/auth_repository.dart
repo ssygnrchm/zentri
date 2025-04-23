@@ -35,4 +35,15 @@ class AuthRepository {
       );
     }
   }
+
+  Future<LoginResponse> getUser() async {
+    final response = await _service.getUser();
+    final responseData = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return LoginResponse.fromJson(responseData);
+    } else {
+      return LoginResponse(message: responseData['message'], data: null);
+    }
+  }
 }

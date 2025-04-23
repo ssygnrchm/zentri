@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zentri/services/pref_handler.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -8,6 +9,28 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String name = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() async {
+    final fetchedName = await PreferenceHandler.getName();
+    setState(() {
+      name = fetchedName ?? '';
+    });
+  }
+
+  void _handleLogout() {
+    PreferenceHandler.removeToken();
+    print('token saat logout: ${PreferenceHandler.getToken().toString()}');
+    PreferenceHandler.removeUser();
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,12 +44,19 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Icon(Icons.menu, size: 28),
+                  GestureDetector(
+                    child: CircleAvatar(backgroundColor: Colors.amber),
+                  ),
                   const Text(
                     'Zentri',
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(width: 28), // For balance
+                  GestureDetector(
+                    onTap: () {
+                      _handleLogout();
+                    },
+                    child: Icon(Icons.logout),
+                  ), // For balance
                 ],
               ),
             ),
@@ -38,6 +68,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      "Hello, $name",
+                      style: TextStyle(fontSize: 20, color: Colors.black54),
+                    ),
+
                     const Text(
                       "Today's Status",
                       style: TextStyle(fontSize: 20, color: Colors.black54),
