@@ -79,13 +79,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (res.data != null) {
         print('Token di login: ${res.data!.token}');
-        print('Name di login: ${res.data!.user.name}');
-        await PreferenceHandler.saveUserData(
-          token: res.data!.token,
+
+        // Get preference handler instance
+        final prefHandler = await PreferenceHandler.getInstance();
+
+        // Save token and user data
+        await prefHandler.saveToken(res.data!.token);
+        await prefHandler.saveUser(
           id: res.data!.user.id,
           name: res.data!.user.name,
           email: res.data!.user.email,
         );
+
         Navigator.pushReplacementNamed(context, '/home');
       }
     }

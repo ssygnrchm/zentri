@@ -17,8 +17,11 @@ class _SplashScreenState extends State<SplashScreen> {
     // Simulate splash screen delay
     await Future.delayed(Duration(seconds: 2));
 
+    // Get preference handler instance
+    final prefHandler = await PreferenceHandler.getInstance();
+
     // Get the token
-    final token = await PreferenceHandler.getToken();
+    final token = prefHandler.getToken();
 
     // Debug print
     print('Token in splash screen: $token');

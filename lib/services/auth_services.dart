@@ -3,7 +3,14 @@ import 'package:zentri/api/endpoint.dart';
 import 'package:zentri/services/pref_handler.dart';
 
 class AuthService {
-  String token = PreferenceHandler.getToken().toString();
+  late PreferenceHandler _prefHandler;
+  String? token;
+
+  // Initialize with preference handler
+  Future<void> initialize() async {
+    _prefHandler = await PreferenceHandler.getInstance();
+    token = _prefHandler.getToken();
+  }
 
   Future<http.Response> login(String email, String password) async {
     final response = await http.post(
@@ -30,9 +37,14 @@ class AuthService {
   }
 
   Future<http.Response> getUser() async {
+    // Ensure token is initialized
+    if (token == null) {
+      await initialize();
+    }
+
     final response = await http.post(
       Uri.parse('${Endpoint.baseUrlApi}/profile'),
-      headers: {'Accept': 'application/json', 'Authorization': token},
+      headers: {'Accept': 'application/json', 'Authorization': token ?? ''},
       body: {},
     );
 

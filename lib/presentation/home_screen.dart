@@ -9,16 +9,37 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Future getName() async {
-    String? name = await PreferenceHandler.getUserName();
-    return name;
+  String name = '';
+
+  void _handleLogout() async {
+    // Get preference handler instance
+    final prefHandler = await PreferenceHandler.getInstance();
+
+    // Remove token and user data
+    await prefHandler.removeToken();
+    await prefHandler.removeUser();
+
+    print('token saat logout: ${prefHandler.getToken()}');
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
-  void _handleLogout() {
-    PreferenceHandler.removeToken();
-    print('token saat logout: ${PreferenceHandler.getToken().toString()}');
-    PreferenceHandler.removeUserData();
-    Navigator.pushReplacementNamed(context, '/login');
+  // Example of updating the _loadUserData method
+  void _loadUserData() async {
+    // Get preference handler instance
+    final prefHandler = await PreferenceHandler.getInstance();
+
+    // Get user name
+    final fetchedName = prefHandler.getName();
+
+    setState(() {
+      name = fetchedName ?? '';
+    });
+  }
+
+  @override
+  void initState() {
+    _loadUserData();
+    super.initState();
   }
 
   @override
@@ -59,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Hello, ${getName()}",
+                      "Hello, $name",
                       style: TextStyle(fontSize: 20, color: Colors.black54),
                     ),
 

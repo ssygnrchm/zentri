@@ -1,82 +1,88 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferenceHandler {
+  // Singleton instance
+  static PreferenceHandler? _instance;
+  late SharedPreferences _prefs;
+
   // Keys
-  static const String _keyToken = 'user_token';
-  static const String _keyUserId = 'user_id';
-  static const String _keyUserName = 'user_name';
-  static const String _keyUserEmail = 'user_email';
+  static const String _keyId = 'idUser';
+  static const String _keyName = 'name';
+  static const String _keyEmail = 'email';
+  static const String _keyToken = 'token';
   static const String _keyLookWelcoming = 'lookWelcoming';
 
-  /// Save all user data
-  static Future<void> saveUserData({
-    required String token,
+  // Private constructor
+  PreferenceHandler._();
+
+  // Factory constructor to get instance
+  static Future<PreferenceHandler> getInstance() async {
+    if (_instance == null) {
+      _instance = PreferenceHandler._();
+      await _instance!._init();
+    }
+    return _instance!;
+  }
+
+  // Initialize SharedPreferences
+  Future<void> _init() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  /// Save User Info
+  Future<void> saveUser({
     required int id,
     required String name,
     required String email,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyToken, token);
-    await prefs.setInt(_keyUserId, id);
-    await prefs.setString(_keyUserName, name);
-    print('name in saveuser prefs: $_keyUserName');
-    await prefs.setString(_keyUserEmail, email);
+    await _prefs.setInt(_keyId, id);
+    await _prefs.setString(_keyName, name);
+    await _prefs.setString(_keyEmail, email);
   }
 
-  /// Save token only
-  static Future<void> saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyToken, token);
+  /// Save Token
+  Future<void> saveToken(String token) async {
+    await _prefs.setString(_keyToken, token);
+  }
+
+  /// Save Look Welcoming
+  Future<void> saveLookWelcoming(bool look) async {
+    await _prefs.setBool(_keyLookWelcoming, look);
   }
 
   /// Getters
-  static Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyToken);
+  String? getToken() {
+    return _prefs.getString(_keyToken);
   }
 
-  static Future<int?> getUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt(_keyUserId);
+  int? getId() {
+    return _prefs.getInt(_keyId);
   }
 
-  static Future<String?> getUserName() async {
-    final prefs = await SharedPreferences.getInstance();
-    print('name in getuser prefs: $_keyUserName');
-    return prefs.getString(_keyUserName);
+  String? getName() {
+    return _prefs.getString(_keyName);
   }
 
-  static Future<String?> getUserEmail() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyUserEmail);
+  String? getEmail() {
+    return _prefs.getString(_keyEmail);
   }
 
-  static Future<bool> getLookWelcoming() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_keyLookWelcoming) ?? false;
+  bool getLookWelcoming() {
+    return _prefs.getBool(_keyLookWelcoming) ?? false;
   }
 
-  static Future<void> saveLookWelcoming(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_keyLookWelcoming, value);
+  /// Remove Functions
+  Future<void> clearAll() async {
+    await _prefs.clear();
   }
 
-  /// Remove specific data
-  static Future<void> removeToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_keyToken);
+  Future<void> removeToken() async {
+    await _prefs.remove(_keyToken);
   }
 
-  static Future<void> removeUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_keyUserId);
-    await prefs.remove(_keyUserName);
-    await prefs.remove(_keyUserEmail);
-  }
-
-  /// Clear all data
-  static Future<void> clearAll() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+  Future<void> removeUser() async {
+    await _prefs.remove(_keyId);
+    await _prefs.remove(_keyName);
+    await _prefs.remove(_keyEmail);
   }
 }
