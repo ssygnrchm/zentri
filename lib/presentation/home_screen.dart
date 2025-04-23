@@ -9,25 +9,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String name = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
-
-  void _loadUserData() async {
-    final fetchedName = await PreferenceHandler.getName();
-    setState(() {
-      name = fetchedName ?? '';
-    });
+  Future getName() async {
+    String? name = await PreferenceHandler.getUserName();
+    return name;
   }
 
   void _handleLogout() {
     PreferenceHandler.removeToken();
     print('token saat logout: ${PreferenceHandler.getToken().toString()}');
-    PreferenceHandler.removeUser();
+    PreferenceHandler.removeUserData();
     Navigator.pushReplacementNamed(context, '/login');
   }
 
@@ -69,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Hello, $name",
+                      "Hello, ${getName()}",
                       style: TextStyle(fontSize: 20, color: Colors.black54),
                     ),
 

@@ -79,9 +79,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (res.data != null) {
         print('Token di login: ${res.data!.token}');
-        PreferenceHandler.saveToken(res.data!.token);
-
-        PreferenceHandler.saveUser(
+        print('Name di login: ${res.data!.user.name}');
+        await PreferenceHandler.saveUserData(
+          token: res.data!.token,
           id: res.data!.user.id,
           name: res.data!.user.name,
           email: res.data!.user.email,
