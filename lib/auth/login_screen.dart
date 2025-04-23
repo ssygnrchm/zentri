@@ -80,6 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (res.data != null) {
         print('Token: ${res.data!.token}');
         PreferenceHandler.saveToken(res.data!.token);
+        PreferenceHandler.saveId(res.data!.user.id.toString());
         Navigator.pushReplacementNamed(context, '/home');
       }
     }

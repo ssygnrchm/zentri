@@ -1,9 +1,11 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zentri/auth/user_model.dart';
 
 class PreferenceHandler {
   static const String _id = 'idUser';
   static const String _lookWelcoming = 'lookWelcoming';
   static const String _token = 'token';
+  UserModel? _user;
 
   // For saving user id
   static void saveId(String id) {
@@ -11,6 +13,11 @@ class PreferenceHandler {
     SharedPreferences.getInstance().then((prefs) {
       prefs.setString(_id, id);
     });
+  }
+
+  static void saveUser(UserModel user) {
+    print('user: $user');
+    SharedPreferences.getInstance().then((prefs) {});
   }
 
   static void saveLookWelcoming(bool look) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zentri/services/pref_handler.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -11,7 +12,11 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     // Simulate splash screen delay
     Future.delayed(Duration(seconds: 2), () {
-      Navigator.pushReplacementNamed(context, '/login');
+      if (PreferenceHandler.getId() != '') {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
     });
   }
 
