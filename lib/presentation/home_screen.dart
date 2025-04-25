@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zentri/repository/absensi_repo.dart';
 import 'package:zentri/services/pref_handler.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -10,6 +11,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String name = '';
+  String statusAbsen = 'CLOCK IN';
+  final AbsensiRepo _repo = AbsensiRepo();
+  bool _isAbsensiLoading = false;
 
   void _handleLogout() async {
     // Get preference handler instance
@@ -21,6 +25,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
     print('token saat logout: ${prefHandler.getToken()}');
     Navigator.pushReplacementNamed(context, '/login');
+  }
+
+  void _handleAbsen() async {
+    if (statusAbsen == 'CLOCK IN') {
+      // API call for checkin
+      // final res = await _repo.checkin(
+      //   //getting from geolocator
+      // );
+    } else {
+      // API call for checkout
+    }
   }
 
   // Example of updating the _loadUserData method
@@ -62,6 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     'Zentri',
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                   ),
+
                   GestureDetector(
                     onTap: () {
                       _handleLogout();
@@ -103,15 +119,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: double.infinity,
                       height: 60,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: _isAbsensiLoading ? null : _handleAbsen,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF3B82F6),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: const Text(
-                          'CLOCK IN',
+                        child: Text(
+                          statusAbsen,
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,

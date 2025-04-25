@@ -45,19 +45,19 @@ class AbsensiData {
 
   factory AbsensiData.fromJson(Map<String, dynamic> json) {
     return AbsensiData(
-      userId: json['userID'],
-      checkIn: json['checkIn'],
-      checkInLocation: json['checkInLocation'],
-      checkInAddress: json['checkInAddress'],
+      userId: json['user_id'],
+      checkIn: json['check_in'],
+      checkInLocation: json['check_in_location'],
+      checkInAddress: json['check_in_address'],
       status: json['status'],
-      alasanIzin: json['alasanIzin'],
-      updatedAt: json['updatedAt'],
-      createdAt: json['createdAt'],
+      alasanIzin: json['alasan_izin'],
+      updatedAt: json['updated_at'],
+      createdAt: json['created_at'],
       id: json['id'],
-      checkInLat: json['checkInLat'],
-      checkInLng: json['checkInLng'],
-      checkOutLat: json['checkOutLat'],
-      checkOutLng: json['checkOutLng'],
+      checkInLat: json['check_in_lat'],
+      checkInLng: json['check_in_lng'],
+      checkOutLat: json['check_out_lat'],
+      checkOutLng: json['check_out_lng'],
     );
   }
 }
