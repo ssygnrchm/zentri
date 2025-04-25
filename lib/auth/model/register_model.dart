@@ -1,4 +1,4 @@
-import 'package:zentri/auth/user_model.dart';
+import 'package:zentri/auth/model/user_model.dart';
 
 class RegisterResponse {
   final String message;

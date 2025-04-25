@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:zentri/auth/login_model.dart';
-import 'package:zentri/auth/register_model.dart';
+import 'package:zentri/auth/model/login_model.dart';
+import 'package:zentri/auth/model/register_model.dart';
 import 'package:zentri/services/auth_services.dart';
 
 class AuthRepository {
