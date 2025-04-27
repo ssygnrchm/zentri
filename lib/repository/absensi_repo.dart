@@ -10,9 +10,9 @@ class AbsensiRepo {
     String checkinLat,
     String checkinLng,
     String checkinAddress,
-    String status,
+    String status, [
     String? alasanIzin,
-  ) async {
+  ]) async {
     final response = await _service.checkin(
       checkinLat,
       checkinLng,

@@ -16,9 +16,9 @@ class AbsensiService {
     String checkinLat,
     String checkinLng,
     String checkinAddress,
-    String status,
+    String status, [
     String? alasanIzin,
-  ) async {
+  ]) async {
     final response = await http.post(
       Uri.parse('${Endpoint.baseUrlApi}/absen/check-in'),
       headers: {'Accept': 'application/json', 'Authorization': token ?? ''},

@@ -4,7 +4,7 @@ import 'package:zentri/services/geo_service.dart';
 import 'package:geolocator/geolocator.dart'; // Make sure this is imported
 
 class LocationMapWidget extends StatefulWidget {
-  final Function(String) onAddressChanged;
+  final Function(String, String, String) onAddressChanged;
 
   const LocationMapWidget({Key? key, required this.onAddressChanged})
     : super(key: key);
@@ -36,7 +36,7 @@ class _LocationMapWidgetState extends State<LocationMapWidget> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         // Handle denied permission
-        widget.onAddressChanged('Location permission denied');
+        widget.onAddressChanged('Location permission denied', 'lat', 'lng');
         setState(() {
           _isLoading = false;
         });
@@ -46,7 +46,11 @@ class _LocationMapWidgetState extends State<LocationMapWidget> {
 
     if (permission == LocationPermission.deniedForever) {
       // Handle permanently denied
-      widget.onAddressChanged('Location permission permanently denied');
+      widget.onAddressChanged(
+        'Location permission permanently denied',
+        'lat',
+        'lng',
+      );
       setState(() {
         _isLoading = false;
       });
@@ -92,7 +96,7 @@ class _LocationMapWidgetState extends State<LocationMapWidget> {
         _isLoading = false;
       });
       print('Error getting current location: $e');
-      widget.onAddressChanged('Error getting location: $e');
+      widget.onAddressChanged('Error getting location: $e', 'lat', 'lng');
     }
   }
 
@@ -153,10 +157,18 @@ class _LocationMapWidgetState extends State<LocationMapWidget> {
   Future<void> _getAddressFromLatLng(LatLng position) async {
     try {
       final address = await getAddressFromLatLng(position);
-      widget.onAddressChanged(address);
+      widget.onAddressChanged(
+        address,
+        position.latitude.toString(),
+        position.longitude.toString(),
+      );
     } catch (e) {
       print('Error getting address: $e');
-      widget.onAddressChanged('Unable to get address');
+      widget.onAddressChanged(
+        'Unable to get address',
+        position.latitude.toString(),
+        position.longitude.toString(),
+      );
     }
   }
 }

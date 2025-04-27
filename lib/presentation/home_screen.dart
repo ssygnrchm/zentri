@@ -17,8 +17,11 @@ class _HomeScreenState extends State<HomeScreen> {
   String name = '';
   String statusAbsen = 'CLOCK IN';
   String currentAddress = 'Determining location...';
+  String currentLat = 'lat';
+  String currentLng = 'lng';
   final AbsensiRepo _repo = AbsensiRepo();
   bool _isAbsensiLoading = false;
+  String? _message;
 
   // For clock display
   late DateTime _currentTime;
@@ -41,30 +44,68 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _handleAbsen() async {
+    setState(() {
+      _message = null;
+    });
     try {
       if (statusAbsen == 'CLOCK IN') {
         setState(() {
           _clockInTime = DateFormat('h:mm a').format(_currentTime);
           _isClockedIn = true;
           statusAbsen = 'CLOCK OUT';
+          _isAbsensiLoading = true;
         });
 
         // API call for checkin
-        // final res = await _repo.checkin(
-        //   //getting from geolocator
-        // );
+        final res = await _repo.checkin(
+          currentLat,
+          currentLng,
+          currentAddress,
+          'masuk',
+        );
+        setState(() {
+          _isAbsensiLoading = false;
+          _message = res.message;
+        });
       } else {
         // Set clock out time
         setState(() {
           _clockOutTime = DateFormat('h:mm a').format(_currentTime);
           _isClockedIn = false;
           statusAbsen = 'CLOCK IN';
+          _isAbsensiLoading = true;
         });
         // API call for checkout
+        final res = await _repo.checkout(
+          currentLat,
+          currentLng,
+          '$currentLat, $currentLng',
+          currentAddress,
+        );
+        setState(() {
+          _isAbsensiLoading = false;
+          _message = res.message;
+        });
       }
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_message!),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );
     } catch (e) {
       // Handle error
       print('Error during clock in/out: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_message!),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 2),
+        ),
+      );
     } finally {
       setState(() {
         _isAbsensiLoading = false;
@@ -72,9 +113,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _updateAddress(String address) {
+  void _updateAddress(String address, String lat, String lng) {
     setState(() {
       currentAddress = address;
+      currentLat = lat;
+      currentLng = lng;
     });
   }
 
