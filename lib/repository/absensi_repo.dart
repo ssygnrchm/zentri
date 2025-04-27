@@ -22,9 +22,9 @@ class AbsensiRepo {
     String status, [
     String? alasanIzin,
   ]) async {
-    await _ensureInitialized();
-
     try {
+      await _ensureInitialized();
+
       final response = await _service.checkin(
         checkinLat,
         checkinLng,
@@ -34,16 +34,32 @@ class AbsensiRepo {
       );
 
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        return AbsensiResponse.fromJson(responseData);
-      } else {
-        final responseData = jsonDecode(response.body);
-        // Make sure we always return a non-null message
-        String message = 'Error occurred';
-        if (responseData != null && responseData['message'] != null) {
-          message = responseData['message'];
+        try {
+          final responseData = jsonDecode(response.body);
+          return AbsensiResponse.fromJson(responseData);
+        } catch (e) {
+          print('Error parsing response: $e');
+          return AbsensiResponse(
+            message: 'Failed to parse response: $e',
+            data: null,
+          );
         }
-        return AbsensiResponse(message: message, data: null);
+      } else {
+        try {
+          final responseData = jsonDecode(response.body);
+          // Make sure we always return a non-null message
+          String message = 'Error occurred';
+          if (responseData != null && responseData['message'] != null) {
+            message = responseData['message'];
+          }
+          return AbsensiResponse(message: message, data: null);
+        } catch (e) {
+          print('Error parsing error response: $e');
+          return AbsensiResponse(
+            message: 'Error code: ${response.statusCode}',
+            data: null,
+          );
+        }
       }
     } catch (e) {
       print('Error in checkin repo: $e');

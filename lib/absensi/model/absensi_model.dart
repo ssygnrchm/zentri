@@ -18,7 +18,7 @@ class AbsensiData {
   String checkInLocation;
   String checkInAddress;
   String status;
-  dynamic alasanIzin;
+  String? alasanIzin; // Explicitly nullable String
   DateTime updatedAt;
   DateTime createdAt;
   int id;
@@ -33,7 +33,7 @@ class AbsensiData {
     required this.checkInLocation,
     required this.checkInAddress,
     required this.status,
-    required this.alasanIzin,
+    this.alasanIzin, // No longer required
     required this.updatedAt,
     required this.createdAt,
     required this.id,
@@ -53,7 +53,7 @@ class AbsensiData {
       checkInLocation: json['check_in_location'] ?? '',
       checkInAddress: json['check_in_address'] ?? '',
       status: json['status'] ?? '',
-      alasanIzin: json['alasan_izin'],
+      alasanIzin: json['alasan_izin'], // Let it be null if it's null
       updatedAt:
           json['updated_at'] != null
               ? DateTime.parse(json['updated_at'])

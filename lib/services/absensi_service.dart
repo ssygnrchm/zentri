@@ -19,16 +19,25 @@ class AbsensiService {
     String status, [
     String? alasanIzin,
   ]) async {
+    final Map<String, dynamic> body = {
+      'check_in_lat': checkinLat,
+      'check_in_lng': checkinLng,
+      'check_in_address': checkinAddress,
+      'status': status,
+    };
+
+    // Only add alasan_izin to body if it's not null
+    if (alasanIzin != null) {
+      body['alasan_izin'] = alasanIzin;
+    }
+    print('token in service: $token');
     final response = await http.post(
       Uri.parse('${Endpoint.baseUrlApi}/absen/check-in'),
-      headers: {'Accept': 'application/json', 'Authorization': token ?? ''},
-      body: {
-        'check_in_lat': checkinLat,
-        'check_in_lng': checkinLng,
-        'check_in_address': checkinAddress,
-        'status': status,
-        'alasan_izin': alasanIzin,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${token!}',
       },
+      body: body,
     );
 
     return response;
@@ -42,7 +51,10 @@ class AbsensiService {
   ) async {
     final response = await http.post(
       Uri.parse('${Endpoint.baseUrlApi}/absen/check-out'),
-      headers: {'Accept': 'application/json', 'Authorization': token ?? ''},
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${token!}',
+      },
       body: {
         'check_out_lat': checkoutLat,
         'check_out_lng': checkoutLng,

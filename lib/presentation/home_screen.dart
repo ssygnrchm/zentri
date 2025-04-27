@@ -30,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _clockOutTime = '-- : --';
   bool _isClockedIn = false;
   late Timer _timer;
+  String token = 'token';
 
   void _handleLogout() async {
     // Get preference handler instance
@@ -141,9 +142,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Get user name
     final fetchedName = prefHandler.getName();
+    final fetchedToken = prefHandler.getToken();
 
     setState(() {
       name = fetchedName ?? '';
+      token = fetchedToken ?? 'token';
     });
   }
 
@@ -186,6 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // Header with app name and logout
             _buildHeader(),
+            Text(token),
 
             // Main content - no longer toggles between map and content
             Expanded(child: _buildMainContent()),
