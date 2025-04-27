@@ -19,7 +19,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String currentAddress = 'Determining location...';
   final AbsensiRepo _repo = AbsensiRepo();
   bool _isAbsensiLoading = false;
-  bool _showMap = false;
 
   // For clock display
   late DateTime _currentTime;
@@ -79,12 +78,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _toggleMapView() {
-    setState(() {
-      _showMap = !_showMap;
-    });
-  }
-
   // Example of updating the _loadUserData method
   void _loadUserData() async {
     // Get preference handler instance
@@ -138,24 +131,12 @@ class _HomeScreenState extends State<HomeScreen> {
             // Header with app name and logout
             _buildHeader(),
 
-            // Main content
-            Expanded(
-              child:
-                  _showMap
-                      ? LocationMapWidget(onAddressChanged: _updateAddress)
-                      : _buildMainContent(),
-            ),
+            // Main content - no longer toggles between map and content
+            Expanded(child: _buildMainContent()),
           ],
         ),
       ),
-      floatingActionButton:
-          _showMap
-              ? FloatingActionButton(
-                onPressed: _toggleMapView,
-                backgroundColor: const Color(0xFF3B82F6),
-                child: const Icon(Icons.arrow_back),
-              )
-              : null,
+      // Removed floating action button
     );
   }
 
@@ -317,39 +298,58 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildLocationSection() {
-    return GestureDetector(
-      onTap: _toggleMapView,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.location_on, color: Color(0xFF3B82F6), size: 24),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Current Location',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    currentAddress,
-                    style: const TextStyle(fontSize: 14),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.location_on, color: Color(0xFF3B82F6), size: 24),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Current Location',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
               ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Map container with fixed height
+          Container(
+            height: 180,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300),
             ),
-            const Icon(Icons.map, color: Color(0xFF3B82F6)),
-          ],
-        ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LocationMapWidget(onAddressChanged: _updateAddress),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.info_outline, size: 16, color: Colors.grey),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  currentAddress,
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

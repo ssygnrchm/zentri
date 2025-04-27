@@ -1,37 +1,42 @@
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geocoding/geocoding.dart';
 
+/// Determines the current position of the user
 Future<LatLng> determineUserLocation() async {
-  try {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      throw 'Location services are disabled.';
-    }
+  bool serviceEnabled;
+  LocationPermission permission;
 
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        throw 'Location permissions are denied.';
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      throw 'Location permissions are permanently denied.';
-    }
-
-    final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    return LatLng(position.latitude, position.longitude);
-  } catch (e) {
-    print('Error determining user location: $e');
-    return const LatLng(-6.1753924, 106.8271528); // Default to Jakarta
+  // Test if location services are enabled.
+  serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    // Location services are not enabled
+    throw Exception('Location services are disabled.');
   }
+
+  permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      // Permissions are denied, throw exception
+      throw Exception('Location permissions are denied');
+    }
+  }
+
+  if (permission == LocationPermission.deniedForever) {
+    // Permissions are permanently denied
+    throw Exception('Location permissions are permanently denied');
+  }
+
+  // Get the current position
+  Position position = await Geolocator.getCurrentPosition(
+    desiredAccuracy: LocationAccuracy.high,
+  );
+
+  return LatLng(position.latitude, position.longitude);
 }
 
+/// Get address from latitude and longitude
 Future<String> getAddressFromLatLng(LatLng position) async {
   try {
     List<Placemark> placemarks = await placemarkFromCoordinates(
@@ -41,11 +46,38 @@ Future<String> getAddressFromLatLng(LatLng position) async {
 
     if (placemarks.isNotEmpty) {
       Placemark place = placemarks[0];
-      return '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+      String address = '';
+
+      // Build address string based on available components
+      if (place.street != null && place.street!.isNotEmpty) {
+        address += place.street!;
+      }
+
+      if (place.subLocality != null && place.subLocality!.isNotEmpty) {
+        if (address.isNotEmpty) address += ', ';
+        address += place.subLocality!;
+      }
+
+      if (place.locality != null && place.locality!.isNotEmpty) {
+        if (address.isNotEmpty) address += ', ';
+        address += place.locality!;
+      }
+
+      if (place.postalCode != null && place.postalCode!.isNotEmpty) {
+        if (address.isNotEmpty) address += ', ';
+        address += place.postalCode!;
+      }
+
+      if (place.country != null && place.country!.isNotEmpty) {
+        if (address.isNotEmpty) address += ', ';
+        address += place.country!;
+      }
+
+      return address.isNotEmpty ? address : 'Unknown location';
     }
-    return 'Unknown location';
+    return 'Address not found';
   } catch (e) {
     print('Error getting address: $e');
-    return 'Unable to get address';
+    return 'Error getting address';
   }
 }
