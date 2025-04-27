@@ -46,14 +46,18 @@ class _HomeScreenState extends State<HomeScreen> {
   void _handleAbsen() async {
     setState(() {
       _message = null;
+      _isAbsensiLoading = true;
     });
+
+    String successMessage = "";
+    bool isSuccess = false;
+
     try {
       if (statusAbsen == 'CLOCK IN') {
         setState(() {
           _clockInTime = DateFormat('h:mm a').format(_currentTime);
           _isClockedIn = true;
-          statusAbsen = 'CLOCK OUT';
-          _isAbsensiLoading = true;
+          // statusAbsen = 'CLOCK OUT';
         });
 
         // API call for checkin
@@ -63,18 +67,21 @@ class _HomeScreenState extends State<HomeScreen> {
           currentAddress,
           'masuk',
         );
-        setState(() {
-          _isAbsensiLoading = false;
-          _message = res.message;
-        });
+
+        // Safe handling of the message
+        successMessage = res.message;
+        isSuccess = true;
+
+        // Debug logging
+        print('Check-in response message: ${res.message}');
       } else {
         // Set clock out time
         setState(() {
           _clockOutTime = DateFormat('h:mm a').format(_currentTime);
           _isClockedIn = false;
-          statusAbsen = 'CLOCK IN';
-          _isAbsensiLoading = true;
+          // statusAbsen = 'CLOCK IN';
         });
+
         // API call for checkout
         final res = await _repo.checkout(
           currentLat,
@@ -82,26 +89,31 @@ class _HomeScreenState extends State<HomeScreen> {
           '$currentLat, $currentLng',
           currentAddress,
         );
-        setState(() {
-          _isAbsensiLoading = false;
-          _message = res.message;
-        });
+
+        // Safe handling of the message
+        successMessage = res.message;
+        isSuccess = true;
+
+        // Debug logging
+        print('Check-out response message: ${res.message}');
       }
 
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_message!),
+          content: Text(successMessage),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 2),
         ),
       );
     } catch (e) {
-      // Handle error
+      // Handle error with detailed logging
       print('Error during clock in/out: $e');
+
+      // Use a safe default message for the error case
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_message!),
+          content: Text('An error occurred during attendance operation'),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 2),
         ),
@@ -109,6 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } finally {
       setState(() {
         _isAbsensiLoading = false;
+        statusAbsen = statusAbsen == 'CLOCK IN' ? 'CLOCK OUT' : 'CLOCK IN';
       });
     }
   }

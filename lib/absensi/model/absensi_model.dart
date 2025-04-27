@@ -45,19 +45,28 @@ class AbsensiData {
 
   factory AbsensiData.fromJson(Map<String, dynamic> json) {
     return AbsensiData(
-      userId: json['user_id'],
-      checkIn: json['check_in'],
-      checkInLocation: json['check_in_location'],
-      checkInAddress: json['check_in_address'],
-      status: json['status'],
+      userId: json['user_id'] ?? 0,
+      checkIn:
+          json['check_in'] != null
+              ? DateTime.parse(json['check_in'])
+              : DateTime.now(),
+      checkInLocation: json['check_in_location'] ?? '',
+      checkInAddress: json['check_in_address'] ?? '',
+      status: json['status'] ?? '',
       alasanIzin: json['alasan_izin'],
-      updatedAt: json['updated_at'],
-      createdAt: json['created_at'],
-      id: json['id'],
-      checkInLat: json['check_in_lat'],
-      checkInLng: json['check_in_lng'],
-      checkOutLat: json['check_out_lat'],
-      checkOutLng: json['check_out_lng'],
+      updatedAt:
+          json['updated_at'] != null
+              ? DateTime.parse(json['updated_at'])
+              : DateTime.now(),
+      createdAt:
+          json['created_at'] != null
+              ? DateTime.parse(json['created_at'])
+              : DateTime.now(),
+      id: json['id'] ?? 0,
+      checkInLat: (json['check_in_lat'] ?? 0.0).toDouble(),
+      checkInLng: (json['check_in_lng'] ?? 0.0).toDouble(),
+      checkOutLat: (json['check_out_lat'] ?? 0.0).toDouble(),
+      checkOutLng: (json['check_out_lng'] ?? 0.0).toDouble(),
     );
   }
 }
