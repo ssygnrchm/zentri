@@ -8,6 +8,43 @@ class AttendanceProvider with ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  // Track today's check-in status
+  bool _isCheckedIn = false;
+  bool get isCheckedIn => _isCheckedIn;
+
+  // Method to check if user is already checked in today
+  bool isUserCheckedIn() {
+    if (_listAbsen.isEmpty) return false;
+
+    // Get the latest attendance record
+    final latestAttendance = _listAbsen.first;
+
+    // Check if it's today's record and has check-in time but no check-out time
+    if (latestAttendance.checkIn == null) return false;
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // Parse the attendance date (adjust this based on your actual date format)
+    final attendanceDate = latestAttendance.checkIn!;
+    final attendanceDay = DateTime(
+      attendanceDate.year,
+      attendanceDate.month,
+      attendanceDate.day,
+    );
+
+    // Check if it's today's record and has check-in but no check-out
+    return attendanceDay.isAtSameMomentAs(today) &&
+        latestAttendance.checkIn != null &&
+        (latestAttendance.checkOut == null);
+  }
+
+  // Update the check-in status after fetching data
+  void _updateCheckInStatus() {
+    _isCheckedIn = isUserCheckedIn();
+    notifyListeners();
+  }
+
   Future<void> checkInUser(
     BuildContext context, {
     required double lat,
@@ -26,7 +63,7 @@ class AttendanceProvider with ChangeNotifier {
       );
 
       if (_responseReg["success"] == true) {
-        getListAbsensi();
+        await getListAbsensi(); // Get updated list after check-in
         CustomDialog().hide(context);
         CustomDialog().hide(context);
         CustomDialog().message(context, pesan: _responseReg['data']['message']);
@@ -65,7 +102,7 @@ class AttendanceProvider with ChangeNotifier {
       );
 
       if (_responseReg["success"] == true) {
-        getListAbsensi();
+        await getListAbsensi(); // Get updated list after check-out
         CustomDialog().hide(context);
         CustomDialog().hide(context);
         CustomDialog().message(context, pesan: _responseReg['data']['message']);
@@ -77,7 +114,7 @@ class AttendanceProvider with ChangeNotifier {
     } catch (e) {
       CustomDialog().hide(context);
       CustomDialog().hide(context);
-      CustomDialog().message(context, pesan: "error saat Check in: $e");
+      CustomDialog().message(context, pesan: "error saat Check out: $e");
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -97,7 +134,7 @@ class AttendanceProvider with ChangeNotifier {
           .checkInIzin(lat, long, address, token, alasan);
 
       if (_responseReg["success"] == true) {
-        getListAbsensi();
+        await getListAbsensi(); // Get updated list after permission check-in
         CustomDialog().hide(context);
         CustomDialog().hide(context);
         CustomDialog().hide(context);
@@ -126,6 +163,7 @@ class AttendanceProvider with ChangeNotifier {
     try {
       AbsenModel dataAbsen = await AttendanceServices().getAbsensi(token);
       _listAbsen = dataAbsen.data ?? [];
+      _updateCheckInStatus(); // Update check-in status after fetching data
     } catch (e) {
       throw Exception("Failed to load data absen: $e");
     } finally {
@@ -148,6 +186,7 @@ class AttendanceProvider with ChangeNotifier {
         tgl_end,
       );
       _listAbsen = dataAbsen.data ?? [];
+      _updateCheckInStatus(); // Update check-in status after fetching filtered data
     } catch (e) {
       throw Exception("Failed to load data absen filtered: $e");
     } finally {
@@ -161,7 +200,7 @@ class AttendanceProvider with ChangeNotifier {
 
     try {
       String resultMsg = await AttendanceServices().deleteAbsen(token, id);
-      getListAbsensi();
+      await getListAbsensi(); // Get updated list after deletion
       CustomDialog().hide(context);
       CustomDialog().message(context, pesan: resultMsg);
     } catch (e) {
