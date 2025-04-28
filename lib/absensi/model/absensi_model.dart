@@ -1,72 +1,103 @@
 class AbsensiResponse {
-  final String message;
-  final AbsensiData? data;
+  final String? message;
+  final List<AbsensiData>? data;
 
-  AbsensiResponse({required this.message, this.data});
+  AbsensiResponse({this.message, this.data});
 
   factory AbsensiResponse.fromJson(Map<String, dynamic> json) {
     return AbsensiResponse(
       message: json['message'],
-      data: json['data'] != null ? AbsensiData.fromJson(json['data']) : null,
+      data:
+          json['data'] == null
+              ? []
+              : List<AbsensiData>.from(
+                json["data"]!.map((x) => AbsensiData.fromJson(x)),
+              ),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    "message": message,
+    "data":
+        data == null ? [] : List<dynamic>.from(data!.map((x) => x.toJson())),
+  };
 }
 
 class AbsensiData {
-  int userId;
-  DateTime checkIn;
-  String checkInLocation;
-  String checkInAddress;
-  String status;
-  String? alasanIzin; // Explicitly nullable String
-  DateTime updatedAt;
-  DateTime createdAt;
-  int id;
-  double checkInLat;
-  double checkInLng;
-  double checkOutLat;
-  double checkOutLng;
+  final int? id;
+  final int? userId;
+  final DateTime? checkIn;
+  final String? checkInLocation;
+  final String? checkInAddress;
+  final DateTime? checkOut;
+  final String? checkOutLocation;
+  final String? checkOutAddress;
+  final String? status;
+  final dynamic alasanIzin;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final double? checkInLat;
+  final double? checkInLng;
+  final double? checkOutLat;
+  final double? checkOutLng;
 
   AbsensiData({
-    required this.userId,
-    required this.checkIn,
-    required this.checkInLocation,
-    required this.checkInAddress,
-    required this.status,
-    this.alasanIzin, // No longer required
-    required this.updatedAt,
-    required this.createdAt,
-    required this.id,
-    required this.checkInLat,
-    required this.checkInLng,
-    required this.checkOutLat,
-    required this.checkOutLng,
+    this.id,
+    this.userId,
+    this.checkIn,
+    this.checkInLocation,
+    this.checkInAddress,
+    this.checkOut,
+    this.checkOutLocation,
+    this.checkOutAddress,
+    this.status,
+    this.alasanIzin,
+    this.createdAt,
+    this.updatedAt,
+    this.checkInLat,
+    this.checkInLng,
+    this.checkOutLat,
+    this.checkOutLng,
   });
 
-  factory AbsensiData.fromJson(Map<String, dynamic> json) {
-    return AbsensiData(
-      userId: json['user_id'] ?? 0,
-      checkIn:
-          json['check_in'] != null
-              ? DateTime.parse(json['check_in'])
-              : DateTime.now(),
-      checkInLocation: json['check_in_location'] ?? '',
-      checkInAddress: json['check_in_address'] ?? '',
-      status: json['status'] ?? '',
-      alasanIzin: json['alasan_izin'], // Let it be null if it's null
-      updatedAt:
-          json['updated_at'] != null
-              ? DateTime.parse(json['updated_at'])
-              : DateTime.now(),
-      createdAt:
-          json['created_at'] != null
-              ? DateTime.parse(json['created_at'])
-              : DateTime.now(),
-      id: json['id'] ?? 0,
-      checkInLat: (json['check_in_lat'] ?? 0.0).toDouble(),
-      checkInLng: (json['check_in_lng'] ?? 0.0).toDouble(),
-      checkOutLat: (json['check_out_lat'] ?? 0.0).toDouble(),
-      checkOutLng: (json['check_out_lng'] ?? 0.0).toDouble(),
-    );
-  }
+  factory AbsensiData.fromJson(Map<String, dynamic> json) => AbsensiData(
+    id: json["id"],
+    userId: json["user_id"],
+    checkIn: json["check_in"] == null ? null : DateTime.parse(json["check_in"]),
+    checkInLocation: json["check_in_location"],
+    checkInAddress: json["check_in_address"],
+    checkOut:
+        json["check_out"] == null ? null : DateTime.parse(json["check_out"]),
+    checkOutLocation: json["check_out_location"],
+    checkOutAddress: json["check_out_address"],
+    status: json["status"],
+    alasanIzin: json["alasan_izin"],
+    createdAt:
+        json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
+    updatedAt:
+        json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
+    checkInLat: json["check_in_lat"]?.toDouble(),
+    checkInLng: json["check_in_lng"]?.toDouble(),
+    checkOutLat: json["check_out_lat"]?.toDouble(),
+    checkOutLng: json["check_out_lng"]?.toDouble(),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "user_id": userId,
+    "check_in": checkIn?.toIso8601String(),
+    "check_in_location": checkInLocation,
+    "check_in_address": checkInAddress,
+    "check_out": checkOut?.toIso8601String(),
+    "check_out_location": checkOutLocation,
+    "check_out_address": checkOutAddress,
+    "status": status,
+    "alasan_izin": alasanIzin,
+    "created_at": createdAt?.toIso8601String(),
+    "updated_at": updatedAt?.toIso8601String(),
+    "check_in_lat": checkInLat,
+    "check_in_lng": checkInLng,
+    "check_out_lat": checkOutLat,
+    "check_out_lng": checkOutLng,
+  };
 }

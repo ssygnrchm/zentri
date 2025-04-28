@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:zentri/repository/absensi_repo.dart';
+import 'package:zentri/absensi/services/absensi_service.dart';
+import 'package:zentri/repository/ex_absensi_repo.dart';
 import 'package:zentri/services/pref_handler.dart';
 import 'package:zentri/presentation/widget/location_map_widget.dart';
 
@@ -17,9 +18,9 @@ class _HomeScreenState extends State<HomeScreen> {
   String name = '';
   String statusAbsen = 'CLOCK IN';
   String currentAddress = 'Determining location...';
-  String currentLat = 'lat';
-  String currentLng = 'lng';
-  final AbsensiRepo _repo = AbsensiRepo();
+  late double currentLat;
+  late double currentLng;
+  // final AbsensiRepo _repo = AbsensiRepo();
   bool _isAbsensiLoading = false;
   String? _message;
 
@@ -30,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String _clockOutTime = '-- : --';
   bool _isClockedIn = false;
   late Timer _timer;
-  String token = 'token';
 
   void _handleLogout() async {
     // Get preference handler instance
@@ -62,19 +62,30 @@ class _HomeScreenState extends State<HomeScreen> {
         });
 
         // API call for checkin
-        final res = await _repo.checkin(
+        // final res = await _repo.checkin(
+        //   currentLat,
+        //   currentLng,
+        //   currentAddress,
+        //   'masuk',
+        // );
+        final prefHandler = await PreferenceHandler.getInstance();
+        String? token = prefHandler.getToken();
+        Map<String, dynamic> res = await AttendanceServices().checkIn(
           currentLat,
           currentLng,
           currentAddress,
-          'masuk',
+          token!,
         );
 
         // Safe handling of the message
-        successMessage = res.message;
-        isSuccess = true;
-
-        // Debug logging
-        print('Check-in response message: ${res.message}');
+        if (res['success'] == true) {
+          setState(() {
+            isSuccess = true;
+            // Debug logging
+            successMessage = 'Check-in Sucess';
+            print(successMessage);
+          });
+        }
       } else {
         // Set clock out time
         setState(() {
@@ -84,19 +95,31 @@ class _HomeScreenState extends State<HomeScreen> {
         });
 
         // API call for checkout
-        final res = await _repo.checkout(
+        // final res = await _repo.checkout(
+        //   currentLat,
+        //   currentLng,
+        //   '$currentLat, $currentLng',
+        //   currentAddress,
+        // );
+        final prefHandler = await PreferenceHandler.getInstance();
+        String? token = prefHandler.getToken();
+        Map<String, dynamic> res = await AttendanceServices().checkOut(
           currentLat,
           currentLng,
           '$currentLat, $currentLng',
           currentAddress,
+          token!,
         );
 
         // Safe handling of the message
-        successMessage = res.message;
-        isSuccess = true;
-
-        // Debug logging
-        print('Check-out response message: ${res.message}');
+        if (res['success'] == true) {
+          setState(() {
+            isSuccess = true;
+            // Debug logging
+            successMessage = 'Check-in Sucess';
+            print(successMessage);
+          });
+        }
       }
 
       // Show success message
@@ -127,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _updateAddress(String address, String lat, String lng) {
+  void _updateAddress(String address, double lat, double lng) {
     setState(() {
       currentAddress = address;
       currentLat = lat;
@@ -142,11 +165,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Get user name
     final fetchedName = prefHandler.getName();
-    final fetchedToken = prefHandler.getToken();
 
     setState(() {
       name = fetchedName ?? '';
-      token = fetchedToken ?? 'token';
     });
   }
 
@@ -189,8 +210,6 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // Header with app name and logout
             _buildHeader(),
-            Text(token),
-
             // Main content - no longer toggles between map and content
             Expanded(child: _buildMainContent()),
           ],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zentri/repository/auth_repository.dart';
+import 'package:zentri/auth/services/auth_repository.dart';
 import 'package:zentri/services/pref_handler.dart';
 
 class LoginScreen extends StatefulWidget {
