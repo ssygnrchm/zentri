@@ -1,13 +1,21 @@
+//Tambahin checkout
+// model belum lengkap
+
 class AbsensiResponse {
   final String message;
-  final AbsensiData? data;
+  final List<AbsensiData>? data;
 
   AbsensiResponse({required this.message, this.data});
 
   factory AbsensiResponse.fromJson(Map<String, dynamic> json) {
     return AbsensiResponse(
       message: json['message'],
-      data: json['data'] != null ? AbsensiData.fromJson(json['data']) : null,
+      data:
+          json["data"] == null
+              ? []
+              : List<AbsensiData>.from(
+                json["data"]!.map((x) => AbsensiData.fromJson(x)),
+              ),
     );
   }
 }

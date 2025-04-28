@@ -1,10 +1,12 @@
 import 'package:http/http.dart' as http;
 import 'package:zentri/api/endpoint.dart';
 import 'package:zentri/services/pref_handler.dart';
+import 'package:intl/intl.dart';
 
 class AbsensiService {
   late PreferenceHandler _prefHandler;
   String? token;
+  String startDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
   // Initialize with preference handler
   Future<void> initialize() async {
@@ -60,6 +62,20 @@ class AbsensiService {
         'check_out_lng': checkoutLng,
         'check_out_location': checkoutLocation,
         'check_out_address': checkoutAddress,
+      },
+    );
+
+    return response;
+  }
+
+  Future<http.Response> getCurrentAbsen() async {
+    final response = await http.get(
+      Uri.parse(
+        '${Endpoint.baseUrlApi}/absen/history?end=$startDate&start=$startDate',
+      ),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${token!}',
       },
     );
 

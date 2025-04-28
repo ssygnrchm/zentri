@@ -100,4 +100,31 @@ class AbsensiRepo {
       return AbsensiResponse(message: 'Failed to check out: $e', data: null);
     }
   }
+
+  Future<AbsensiResponse> getCurrentAbsen() async {
+    await _ensureInitialized();
+
+    try {
+      final response = await _service.getCurrentAbsen();
+      // final json = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return AbsensiResponse.fromJson(responseData);
+      } else {
+        final responseData = jsonDecode(response.body);
+        // Make sure we always return a non-null message
+        String message = 'Error occurred';
+        if (responseData != null && responseData['message'] != null) {
+          message = responseData['message'];
+        }
+        return AbsensiResponse(message: message, data: null);
+      }
+    } catch (e) {
+      print('Error in getCurrentAbsen repo: $e');
+      return AbsensiResponse(
+        message: 'Failed to get absen history on today: $e',
+        data: null,
+      );
+    }
+  }
 }
