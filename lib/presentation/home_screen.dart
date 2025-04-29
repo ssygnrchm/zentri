@@ -614,17 +614,18 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _buildNavButton(Icons.access_time, 'History'),
-            _buildNavButton(Icons.calendar_month, 'Schedule'),
-          ],
-        ),
-        const SizedBox(height: 24),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
             _buildNavButton(Icons.flight, 'Leave'),
-            _buildNavButton(Icons.bar_chart, 'Stats'),
+            // _buildNavButton(Icons.calendar_month, 'Schedule'),
           ],
         ),
+        // const SizedBox(height: 24),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        //   children: [
+        //     // _buildNavButton(Icons.flight, 'Leave'),
+        //     // _buildNavButton(Icons.bar_chart, 'Stats'),
+        //   ],
+        // ),
       ],
     );
   }
