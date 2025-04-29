@@ -35,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isClockedIn = false;
   late Timer _timer;
   String token = 'token';
+  String email = '';
 
   @override
   void initState() {
@@ -228,11 +229,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Get user name
     final fetchedName = prefHandler.getName();
+    final fetchedEmail = prefHandler.getEmail();
     final fetchedToken = prefHandler.getToken();
 
     setState(() {
       name = fetchedName ?? '';
       token = fetchedToken ?? 'token';
+      email = fetchedEmail ?? '';
     });
   }
 

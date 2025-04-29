@@ -43,9 +43,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (response.data != null) {
         setState(() {
-          print('name ${response.data!.user.name}');
-          _nameController.text = response.data!.user.name;
-          _emailController.text = response.data!.user.email;
+          print('name ${response.data?.user.name ?? ''}');
+          _nameController.text = response.data?.user.name ?? '';
+          _emailController.text = response.data?.user.email ?? '';
         });
       } else {
         setState(() {
