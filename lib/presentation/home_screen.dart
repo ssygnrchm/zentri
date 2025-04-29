@@ -14,7 +14,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   String name = '';
   String statusAbsen = 'CLOCK IN';
   String currentAddress = 'Determining location...';
@@ -40,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     loadUserData();
     _loadTodayAttendance();
     _currentTime = DateTime.now();
@@ -53,8 +54,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Refresh user data when app is resumed
+      loadUserData();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // This will refresh the data when returning from another screen
+    loadUserData();
   }
 
   // New method to load today's attendance
@@ -223,7 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void loadUserData() async {
+  Future<void> loadUserData() async {
     // Get preference handler instance
     final prefHandler = await PreferenceHandler.getInstance();
 
@@ -232,18 +249,22 @@ class _HomeScreenState extends State<HomeScreen> {
     final fetchedEmail = prefHandler.getEmail();
     final fetchedToken = prefHandler.getToken();
 
-    setState(() {
-      name = fetchedName ?? '';
-      token = fetchedToken ?? 'token';
-      email = fetchedEmail ?? '';
-      print('name in home $name');
-    });
+    if (mounted) {
+      setState(() {
+        name = fetchedName ?? '';
+        token = fetchedToken ?? 'token';
+        email = fetchedEmail ?? '';
+        print('name updated in home: $name');
+      });
+    }
   }
 
   void _updateTime() {
-    setState(() {
-      _currentTime = DateTime.now();
-    });
+    if (mounted) {
+      setState(() {
+        _currentTime = DateTime.now();
+      });
+    }
   }
 
   bool isWithinWorkingHours() {

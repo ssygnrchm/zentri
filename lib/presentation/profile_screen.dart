@@ -120,7 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_errorMessage), backgroundColor: Colors.red),
+          SnackBar(content: Text(_errorMessage), backgroundColor: Colors.green),
         );
       }
     } catch (e) {
@@ -142,12 +142,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _toggleEditMode() {
     if (_isEditing) {
       // If currently editing, update the data
-      _updateUserData();
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/home',
-        ModalRoute.withName('/home'),
-      );
+      _updateUserData().then((_) {
+        // Navigate back to home screen only after update completes successfully
+        if (_errorMessage == 'Profil berhasil diperbarui') {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/home',
+            ModalRoute.withName('/home'),
+          );
+        }
+      });
     } else {
       // Enter edit mode
       setState(() {
@@ -183,15 +187,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _buildProfileAvatar(),
                     const SizedBox(height: 32),
                     _buildProfileForm(),
-                    if (_errorMessage.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16.0),
-                        child: Text(
-                          _errorMessage,
-                          style: const TextStyle(color: Colors.red),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+                    // if (_errorMessage.isNotEmpty)
+                    //   Padding(
+                    //     padding: const EdgeInsets.only(top: 16.0),
+                    //     child: Text(
+                    //       _errorMessage,
+                    //       style: const TextStyle(color: Colors.red),
+                    //       textAlign: TextAlign.center,
+                    //     ),
+                    //   ),
                     const SizedBox(height: 32),
                     _buildUpdateButton(),
                   ],
