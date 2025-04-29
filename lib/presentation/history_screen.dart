@@ -209,6 +209,10 @@ class AttendanceCard extends StatelessWidget {
 
   const AttendanceCard({Key? key, required this.attendance}) : super(key: key);
 
+  // void _handleDelete(){
+
+  // }
+
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('HH:mm:ss');

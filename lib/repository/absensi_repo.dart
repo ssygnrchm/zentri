@@ -154,4 +154,10 @@ class AbsensiRepo {
       );
     }
   }
+
+  Future<String> deleteAbsen(id) async {
+    final response = await _service.deleteAbsen(id);
+    final json = jsonDecode(response.body);
+    return json['message'] ?? "default error";
+  }
 }

@@ -107,6 +107,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ).format(todayAttendance.checkOut!);
               _buttonEnabled =
                   false; // Disable button if both check-in and check-out exist
+              _isClockedIn = false;
             } else {
               statusAbsen =
                   'CLOCK OUT'; // Show clock out button if only checked in
@@ -301,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               _showProfileOptions();
             },
             child: CircleAvatar(
-              backgroundColor: Colors.amber,
+              backgroundColor: Colors.blue,
               child: Text(
                 name.isNotEmpty ? name[0].toUpperCase() : "Z",
                 style: const TextStyle(
@@ -317,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ),
           GestureDetector(
             onTap: _handleLogout,
-            child: const Icon(Icons.logout),
+            child: const Icon(Icons.logout, color: Colors.white),
           ),
         ],
       ),
@@ -685,8 +686,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildNavButton(Icons.access_time, 'History'),
-            _buildNavButton(Icons.flight, 'Leave'),
+            Expanded(child: _buildNavButton(Icons.access_time, 'History')),
+            // _buildNavButton(Icons.flight, 'Leave'),
             // _buildNavButton(Icons.calendar_month, 'Schedule'),
           ],
         ),
@@ -708,7 +709,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         Navigator.pushNamed(context, '/history');
       },
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.4,
+        // width: MediaQuery.of(context).size.width * 0.8,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: Colors.grey[100],

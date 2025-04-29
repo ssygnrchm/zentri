@@ -198,16 +198,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 8),
                   // Forgot password link
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Forget your password?',
-                        style: TextStyle(color: Colors.blue, fontSize: 14),
-                      ),
-                    ),
-                  ),
+                  // Align(
+                  //   alignment: Alignment.centerRight,
+                  //   child: TextButton(
+                  //     onPressed: () {},
+                  //     child: Text(
+                  //       'Forget your password?',
+                  //       style: TextStyle(color: Colors.blue, fontSize: 14),
+                  //     ),
+                  //   ),
+                  // ),
                   SizedBox(height: 16),
                   // Login button
                   ElevatedButton(

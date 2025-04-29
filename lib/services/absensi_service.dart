@@ -80,4 +80,17 @@ class AbsensiService {
 
     return response;
   }
+
+  // New method to get attendance history
+  Future<http.Response> deleteAbsen(id) async {
+    final response = await http.delete(
+      Uri.parse('${Endpoint.baseUrlApi}/absen/$id'),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${token!}',
+      },
+    );
+
+    return response;
+  }
 }

@@ -208,7 +208,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Center(
       child: CircleAvatar(
         radius: 60,
-        backgroundColor: Colors.amber,
+        backgroundColor: Colors.blue,
         child: Text(
           _nameController.text.isNotEmpty
               ? _nameController.text[0].toUpperCase()
