@@ -271,13 +271,18 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          CircleAvatar(
-            backgroundColor: Colors.amber,
-            child: Text(
-              name.isNotEmpty ? name[0].toUpperCase() : "Z",
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+          GestureDetector(
+            onTap: () {
+              _showProfileOptions();
+            },
+            child: CircleAvatar(
+              backgroundColor: Colors.amber,
+              child: Text(
+                name.isNotEmpty ? name[0].toUpperCase() : "Z",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -291,6 +296,48 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showProfileOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.person, color: Color(0xFF3B82F6)),
+                title: const Text(
+                  'View Profile',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                onTap: () {
+                  Navigator.pop(context); // Close bottom sheet
+                  Navigator.pushNamed(context, '/profile');
+                },
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title: const Text(
+                  'Logout',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                onTap: () {
+                  Navigator.pop(context); // Close bottom sheet
+                  _handleLogout();
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
