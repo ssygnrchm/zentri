@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    loadUserData();
     _loadTodayAttendance();
     _currentTime = DateTime.now();
     _date = DateTime.now();
@@ -223,12 +223,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _loadUserData() async {
+  void loadUserData() async {
     // Get preference handler instance
     final prefHandler = await PreferenceHandler.getInstance();
 
     // Get user name
-    final fetchedName = prefHandler.getName();
+    final fetchedName = await prefHandler.getName();
     final fetchedEmail = prefHandler.getEmail();
     final fetchedToken = prefHandler.getToken();
 
@@ -236,6 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
       name = fetchedName ?? '';
       token = fetchedToken ?? 'token';
       email = fetchedEmail ?? '';
+      print('name in home $name');
     });
   }
 

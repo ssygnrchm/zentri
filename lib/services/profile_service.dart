@@ -36,13 +36,20 @@ class ProfileService {
       await initialize();
     }
 
-    final response = await http.post(
+    final response = await http.put(
       Uri.parse('${Endpoint.baseUrlApi}/profile'),
       headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token' ?? '',
       },
       body: {'name': name, 'email': email},
+    );
+
+    _prefHandler = await PreferenceHandler.getInstance();
+    await _prefHandler.saveUser(
+      id: _prefHandler.getId()!,
+      name: name,
+      email: email,
     );
 
     return response;

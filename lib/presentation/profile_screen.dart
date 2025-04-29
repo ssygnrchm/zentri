@@ -19,6 +19,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isUpdating = false;
   String _errorMessage = '';
 
+  String name = '';
+  String token = 'token';
+  String email = '';
+
   @override
   void initState() {
     super.initState();
@@ -32,36 +36,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _loadUserData() async {
+  void _loadUserData() async {
+    // Get preference handler instance
+    final prefHandler = await PreferenceHandler.getInstance();
+
+    // Get user name
+    final fetchedName = prefHandler.getName();
+    final fetchedEmail = prefHandler.getEmail();
+    final fetchedToken = prefHandler.getToken();
+
     setState(() {
-      _isLoading = true;
-      _errorMessage = '';
+      name = fetchedName ?? '';
+      token = fetchedToken ?? 'token';
+      email = fetchedEmail ?? '';
+
+      _nameController.text = name;
+      _emailController.text = email;
+      _isLoading = false;
     });
-
-    try {
-      final response = await _repository.getUserProfile();
-
-      if (response.data != null) {
-        setState(() {
-          print('name ${response.data?.user.name ?? ''}');
-          _nameController.text = response.data?.user.name ?? '';
-          _emailController.text = response.data?.user.email ?? '';
-        });
-      } else {
-        setState(() {
-          _errorMessage = response.message ?? 'Failed to load profile data';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Error: ${e.toString()}';
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
+
+  // Future<void> _loadUserData() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //     _errorMessage = '';
+  //   });
+
+  //   try {
+  //     final response = await _repository.getUserProfile();
+
+  //     if (response.data != null) {
+  //       setState(() {
+  //         print('name ${response.data?.user.name ?? ''}');
+  //         _nameController.text = response.data?.user.name ?? '';
+  //         _emailController.text = response.data?.user.email ?? '';
+  //       });
+  //     } else {
+  //       setState(() {
+  //         _errorMessage = response.message ?? 'Failed to load profile data';
+  //       });
+  //     }
+  //   } catch (e) {
+  //     setState(() {
+  //       _errorMessage = 'Error: ${e.toString()}';
+  //     });
+  //   } finally {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   }
+  // }
 
   Future<void> _updateUserData() async {
     setState(() {
@@ -119,6 +143,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_isEditing) {
       // If currently editing, update the data
       _updateUserData();
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/home',
+        ModalRoute.withName('/home'),
+      );
     } else {
       // Enter edit mode
       setState(() {
