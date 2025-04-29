@@ -1,14 +1,33 @@
 class AbsensiResponse {
   final String message;
-  final AbsensiData? data;
+  final dynamic data; // Can be either AbsensiData or List<AbsensiData>
 
-  AbsensiResponse({required this.message, this.data});
+  AbsensiResponse({required this.message, required this.data});
 
   factory AbsensiResponse.fromJson(Map<String, dynamic> json) {
-    return AbsensiResponse(
-      message: json['message'],
-      data: json['data'] != null ? AbsensiData.fromJson(json['data']) : null,
-    );
+    var dataField = json['data'];
+
+    // Handle both single object and list responses
+    dynamic processedData;
+    if (dataField is List) {
+      processedData =
+          dataField.map((item) => AbsensiData.fromJson(item)).toList();
+    } else if (dataField != null) {
+      processedData = AbsensiData.fromJson(dataField);
+    } else {
+      processedData = null;
+    }
+
+    return AbsensiResponse(message: json['message'], data: processedData);
+  }
+
+  // Helper methods to access data in different formats
+  AbsensiData? getSingleData() {
+    return data is AbsensiData ? data : null;
+  }
+
+  List<AbsensiData>? getDataList() {
+    return data is List ? data : null;
   }
 }
 
@@ -18,7 +37,10 @@ class AbsensiData {
   String checkInLocation;
   String checkInAddress;
   String status;
-  String? alasanIzin; // Explicitly nullable String
+  String? alasanIzin;
+  DateTime? checkOut; // Added field
+  String? checkOutLocation; // Added field
+  String? checkOutAddress; // Added field
   DateTime updatedAt;
   DateTime createdAt;
   int id;
@@ -33,7 +55,10 @@ class AbsensiData {
     required this.checkInLocation,
     required this.checkInAddress,
     required this.status,
-    this.alasanIzin, // No longer required
+    this.alasanIzin,
+    this.checkOut, // Optional field
+    this.checkOutLocation, // Optional field
+    this.checkOutAddress, // Optional field
     required this.updatedAt,
     required this.createdAt,
     required this.id,
@@ -53,7 +78,11 @@ class AbsensiData {
       checkInLocation: json['check_in_location'] ?? '',
       checkInAddress: json['check_in_address'] ?? '',
       status: json['status'] ?? '',
-      alasanIzin: json['alasan_izin'], // Let it be null if it's null
+      alasanIzin: json['alasan_izin'],
+      checkOut:
+          json['check_out'] != null ? DateTime.parse(json['check_out']) : null,
+      checkOutLocation: json['check_out_location'],
+      checkOutAddress: json['check_out_address'],
       updatedAt:
           json['updated_at'] != null
               ? DateTime.parse(json['updated_at'])

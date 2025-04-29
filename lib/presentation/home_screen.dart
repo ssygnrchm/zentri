@@ -189,7 +189,6 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // Header with app name and logout
             _buildHeader(),
-            Text(token),
 
             // Main content - no longer toggles between map and content
             Expanded(child: _buildMainContent()),
