@@ -140,16 +140,16 @@ class _LocationMapWidgetState extends State<LocationMapWidget> {
           },
         ),
         if (_isLoading) const Center(child: CircularProgressIndicator()),
-        Positioned(
-          bottom: 16,
-          right: 16,
-          child: FloatingActionButton(
-            heroTag: "locationButton",
-            backgroundColor: const Color(0xFF3B82F6),
-            child: const Icon(Icons.my_location, color: Colors.white),
-            onPressed: _getCurrentLocation,
-          ),
-        ),
+        // Positioned(
+        //   bottom: 16,
+        //   right: 16,
+        //   child: FloatingActionButton(
+        //     heroTag: "locationButton",
+        //     backgroundColor: const Color(0xFF3B82F6),
+        //     child: const Icon(Icons.my_location, color: Colors.white),
+        //     onPressed: _getCurrentLocation,
+        //   ),
+        // ),
       ],
     );
   }

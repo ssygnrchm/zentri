@@ -16,11 +16,17 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
   bool _isLoading = true;
   String _errorMessage = '';
   List<AbsensiData> _attendanceList = [];
-  DateTime _selectedDate = DateTime.now();
+
+  // Date range for filtering
+  late DateTime _startDate;
+  late DateTime _endDate;
 
   @override
   void initState() {
     super.initState();
+    // Set default date range to one month
+    _endDate = DateTime.now();
+    _startDate = DateTime(_endDate.year, _endDate.month - 1, _endDate.day);
     _loadAttendanceData();
   }
 
@@ -31,10 +37,12 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     });
 
     try {
-      final formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDate);
+      final formattedStartDate = DateFormat('yyyy-MM-dd').format(_startDate);
+      final formattedEndDate = DateFormat('yyyy-MM-dd').format(_endDate);
+
       final AbsensiResponse response = await _absensiRepo.getHistory(
-        startDate: formattedDate,
-        endDate: formattedDate,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
       );
 
       setState(() {
@@ -43,6 +51,8 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
           final dataList = response.getDataList();
           if (dataList != null) {
             _attendanceList = dataList;
+            // Sort by check-in date in descending order (newest first)
+            _attendanceList.sort((a, b) => b.checkIn.compareTo(a.checkIn));
           } else {
             // Handle single data case
             final singleData = response.getSingleData();
@@ -64,16 +74,28 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     }
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+  Future<void> _selectDateRange(BuildContext context) async {
+    final DateTimeRange? picked = await showDateRangePicker(
       context: context,
-      initialDate: _selectedDate,
+      initialDateRange: DateTimeRange(start: _startDate, end: _endDate),
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light().copyWith(
+              primary: Theme.of(context).primaryColor,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
-    if (picked != null && picked != _selectedDate) {
+
+    if (picked != null) {
       setState(() {
-        _selectedDate = picked;
+        _startDate = picked.start;
+        _endDate = picked.end;
       });
       _loadAttendanceData();
     }
@@ -86,12 +108,41 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
         title: const Text('Attendance History'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.calendar_today),
-            onPressed: () => _selectDate(context),
+            icon: const Icon(Icons.date_range),
+            onPressed: () => _selectDateRange(context),
           ),
         ],
       ),
-      body: _buildBody(),
+      body: Column(
+        children: [_buildDateRangeHeader(), Expanded(child: _buildBody())],
+      ),
+    );
+  }
+
+  Widget _buildDateRangeHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor.withOpacity(0.1),
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Date Range: ${DateFormat('MMM dd, yyyy').format(_startDate)} - ${DateFormat('MMM dd, yyyy').format(_endDate)}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          TextButton.icon(
+            onPressed: () => _selectDateRange(context),
+            icon: const Icon(Icons.filter_alt),
+            label: const Text('Filter'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -126,13 +177,13 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'No attendance records found for ${DateFormat('yyyy-MM-dd').format(_selectedDate)}',
+              'No attendance records found for the selected date range.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => _selectDate(context),
-              child: const Text('Select Different Date'),
+              onPressed: () => _selectDateRange(context),
+              child: const Text('Change Date Range'),
             ),
           ],
         ),
@@ -173,7 +224,7 @@ class AttendanceCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Date: ${DateFormat('yyyy-MM-dd').format(attendance.checkIn)}',
+                  'Date: ${DateFormat('EEE, MMM dd, yyyy').format(attendance.checkIn)}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 _buildStatusChip(attendance.status),
