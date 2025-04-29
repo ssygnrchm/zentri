@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:zentri/absensi/model/absensi_model.dart';
 import 'package:zentri/repository/absensi_repo.dart';
 import 'package:zentri/services/pref_handler.dart';
 import 'package:zentri/presentation/widget/location_map_widget.dart';
@@ -21,7 +22,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String currentLng = 'lng';
   final AbsensiRepo _repo = AbsensiRepo();
   bool _isAbsensiLoading = false;
+  bool _isHistoryLoading = true;
   String? _message;
+  AbsensiData? _todayAttendance;
+  bool _buttonEnabled = true;
 
   // For clock display
   late DateTime _currentTime;
@@ -31,6 +35,86 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isClockedIn = false;
   late Timer _timer;
   String token = 'token';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+    _loadTodayAttendance();
+    _currentTime = DateTime.now();
+    _date = DateTime.now();
+
+    // Set up timer for updating the current time every second
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _updateTime();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  // New method to load today's attendance
+  Future<void> _loadTodayAttendance() async {
+    try {
+      setState(() {
+        _isHistoryLoading = true;
+      });
+
+      final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final response = await _repo.getHistory(startDate: today, endDate: today);
+
+      if (response.data != null) {
+        final attendanceList = response.getDataList();
+
+        if (attendanceList != null && attendanceList.isNotEmpty) {
+          // Use the first attendance record for today
+          final todayAttendance = attendanceList[0];
+          setState(() {
+            _todayAttendance = todayAttendance;
+
+            // Update UI elements based on attendance data
+            if (todayAttendance.checkIn != null) {
+              _clockInTime = DateFormat(
+                'h:mm a',
+              ).format(todayAttendance.checkIn);
+              _isClockedIn = true;
+            }
+
+            if (todayAttendance.checkOut != null) {
+              _clockOutTime = DateFormat(
+                'h:mm a',
+              ).format(todayAttendance.checkOut!);
+              _buttonEnabled =
+                  false; // Disable button if both check-in and check-out exist
+            } else {
+              statusAbsen =
+                  'CLOCK OUT'; // Show clock out button if only checked in
+            }
+          });
+        } else {
+          // No attendance records for today
+          setState(() {
+            _todayAttendance = null;
+            statusAbsen = 'CLOCK IN';
+            _isClockedIn = false;
+            _buttonEnabled = true;
+          });
+        }
+      } else {
+        // Error or no data
+        print('Error loading attendance: ${response.message}');
+      }
+    } catch (e) {
+      print('Exception loading attendance history: $e');
+    } finally {
+      setState(() {
+        _isHistoryLoading = false;
+      });
+    }
+  }
 
   void _handleLogout() async {
     // Get preference handler instance
@@ -58,7 +142,6 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           _clockInTime = DateFormat('h:mm a').format(_currentTime);
           _isClockedIn = true;
-          // statusAbsen = 'CLOCK OUT';
         });
 
         // API call for checkin
@@ -75,12 +158,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Debug logging
         print('Check-in response message: ${res.message}');
+
+        // Reload attendance data to update UI with new check-in
+        await _loadTodayAttendance();
       } else {
         // Set clock out time
         setState(() {
           _clockOutTime = DateFormat('h:mm a').format(_currentTime);
-          _isClockedIn = false;
-          // statusAbsen = 'CLOCK IN';
         });
 
         // API call for checkout
@@ -97,6 +181,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Debug logging
         print('Check-out response message: ${res.message}');
+
+        // Reload attendance data to update UI with new check-out
+        await _loadTodayAttendance();
       }
 
       // Show success message
@@ -122,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } finally {
       setState(() {
         _isAbsensiLoading = false;
-        statusAbsen = statusAbsen == 'CLOCK IN' ? 'CLOCK OUT' : 'CLOCK IN';
+        // Status is now managed by _loadTodayAttendance()
       });
     }
   }
@@ -135,7 +222,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // Example of updating the _loadUserData method
   void _loadUserData() async {
     // Get preference handler instance
     final prefHandler = await PreferenceHandler.getInstance();
@@ -162,25 +248,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  void initState() {
-    _loadUserData();
-    super.initState();
-    _currentTime = DateTime.now();
-    _date = DateTime.now();
-
-    // Set up timer for updating the current time every second
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _updateTime();
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -190,12 +257,11 @@ class _HomeScreenState extends State<HomeScreen> {
             // Header with app name and logout
             _buildHeader(),
 
-            // Main content - no longer toggles between map and content
+            // Main content
             Expanded(child: _buildMainContent()),
           ],
         ),
       ),
-      // Removed floating action button
     );
   }
 
@@ -229,32 +295,34 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildMainContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Welcome and date/time section
-          _buildWelcomeSection(),
-          const SizedBox(height: 24),
+    return _isHistoryLoading
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Welcome and date/time section
+              _buildWelcomeSection(),
+              const SizedBox(height: 24),
 
-          // Location section
-          _buildLocationSection(),
-          const SizedBox(height: 24),
+              // Location section
+              _buildLocationSection(),
+              const SizedBox(height: 24),
 
-          // Attendance section
-          _buildAttendanceSection(),
-          const SizedBox(height: 32),
+              // Attendance section
+              _buildAttendanceSection(),
+              const SizedBox(height: 32),
 
-          // Work hours section
-          _buildWorkHoursSection(),
-          const SizedBox(height: 32),
+              // Work hours section
+              _buildWorkHoursSection(),
+              const SizedBox(height: 32),
 
-          // Bottom navigation buttons
-          _buildNavButtons(),
-        ],
-      ),
-    );
+              // Bottom navigation buttons
+              _buildNavButtons(),
+            ],
+          ),
+        );
   }
 
   Widget _buildWelcomeSection() {
@@ -414,6 +482,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildAttendanceSection() {
+    // Determine button color based on status
+    Color buttonColor =
+        _isClockedIn ? Colors.red.shade600 : const Color(0xFF3B82F6);
+
+    // Determine button state
+    bool isButtonDisabled = !_buttonEnabled || _isAbsensiLoading;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -470,12 +545,11 @@ class _HomeScreenState extends State<HomeScreen> {
             width: double.infinity,
             height: 60,
             child: ElevatedButton(
-              onPressed: _isAbsensiLoading ? null : _handleAbsen,
+              onPressed: isButtonDisabled ? null : _handleAbsen,
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    _isClockedIn
-                        ? Colors.red.shade600
-                        : const Color(0xFF3B82F6),
+                backgroundColor: buttonColor,
+                disabledBackgroundColor:
+                    _buttonEnabled ? null : Colors.grey.shade400,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -491,7 +565,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       )
                       : Text(
-                        statusAbsen,
+                        !_buttonEnabled ? "COMPLETED" : statusAbsen,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,

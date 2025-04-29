@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
 import 'package:zentri/absensi/model/absensi_model.dart';
 import 'package:zentri/services/absensi_service.dart';
 
@@ -98,6 +99,59 @@ class AbsensiRepo {
     } catch (e) {
       print('Error in checkout repo: $e');
       return AbsensiResponse(message: 'Failed to check out: $e', data: null);
+    }
+  }
+
+  // New method to get attendance history
+  Future<AbsensiResponse> getHistory({
+    String? startDate,
+    String? endDate,
+  }) async {
+    try {
+      await _ensureInitialized();
+
+      // If dates are not provided, use today's date
+      final today = DateTime.now();
+      final formattedDate = DateFormat('yyyy-MM-dd').format(today);
+
+      final start = startDate ?? formattedDate;
+      final end = endDate ?? formattedDate;
+
+      final response = await _service.getHistory(start, end);
+
+      if (response.statusCode == 200) {
+        try {
+          final responseData = jsonDecode(response.body);
+          return AbsensiResponse.fromJson(responseData);
+        } catch (e) {
+          print('Error parsing history response: $e');
+          return AbsensiResponse(
+            message: 'Failed to parse response: $e',
+            data: null,
+          );
+        }
+      } else {
+        try {
+          final responseData = jsonDecode(response.body);
+          String message = 'Error occurred';
+          if (responseData != null && responseData['message'] != null) {
+            message = responseData['message'];
+          }
+          return AbsensiResponse(message: message, data: null);
+        } catch (e) {
+          print('Error parsing error response: $e');
+          return AbsensiResponse(
+            message: 'Error code: ${response.statusCode}',
+            data: null,
+          );
+        }
+      }
+    } catch (e) {
+      print('Error in getHistory repo: $e');
+      return AbsensiResponse(
+        message: 'Failed to get attendance history: $e',
+        data: null,
+      );
     }
   }
 }

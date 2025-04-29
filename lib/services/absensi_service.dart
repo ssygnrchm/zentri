@@ -65,4 +65,19 @@ class AbsensiService {
 
     return response;
   }
+
+  // New method to get attendance history
+  Future<http.Response> getHistory(String startDate, String endDate) async {
+    final response = await http.get(
+      Uri.parse(
+        '${Endpoint.baseUrlApi}/absen/history?start=$startDate&end=$endDate',
+      ),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${token!}',
+      },
+    );
+
+    return response;
+  }
 }
