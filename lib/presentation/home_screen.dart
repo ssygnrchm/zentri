@@ -95,16 +95,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
             // Update UI elements based on attendance data
             if (todayAttendance.checkIn != null) {
-              _clockInTime = DateFormat(
-                'h:mm a',
-              ).format(todayAttendance.checkIn);
+              // This is adding 7 hour to server time
+              final jakartaTime = todayAttendance.checkIn.add(
+                Duration(hours: 7),
+              );
+              _clockInTime = DateFormat('h:mm a').format(jakartaTime);
               _isClockedIn = true;
             }
 
             if (todayAttendance.checkOut != null) {
-              _clockOutTime = DateFormat(
-                'h:mm a',
-              ).format(todayAttendance.checkOut!);
+              // This is adding 7 hour to server time
+              final jakartaTime = todayAttendance.checkOut!.add(
+                Duration(hours: 7),
+              );
+              _clockOutTime = DateFormat('h:mm a').format(jakartaTime);
               _buttonEnabled =
                   false; // Disable button if both check-in and check-out exist
               _isClockedIn = false;
@@ -159,6 +163,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     try {
       if (statusAbsen == 'CLOCK IN') {
         setState(() {
+          // final jakartaTime = todayAttendance.checkIn.toUtc().add(
+          //       Duration(hours: 7),
+          //     );
+          //     _clockInTime = DateFormat('h:mm a').format(jakartaTime);
           _clockInTime = DateFormat('h:mm a').format(_currentTime);
           _isClockedIn = true;
         });
